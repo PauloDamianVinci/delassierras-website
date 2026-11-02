@@ -1,4 +1,4 @@
-# De las Sierras — Playing Good Music (v2.2)
+# De las Sierras — Playing Good Music (v2.4)
 
 Sitio React + Vite para Cloudflare Pages, bilingüe EN/ES.
 
@@ -24,3 +24,10 @@ Verificar el iframe, el historial y el selector de idiomas, además de los enlac
 - Renamed the navigation item to Ways to listen / Formas de escuchar.
 - Removed the Listen wherever you are heading, description and direct stream link.
 - Retained external player links and Android APK download under Ways to listen.
+
+## Version 2.4
+- Navigation and section names: Listen Anywhere / Escucha desde cualquier lugar, The Station / La radio.
+- History heading: Recently Played / Últimas canciones.
+- Updated station description in both languages.
+- Neutral Spanish copy throughout the website.
+- Audio player, history polling, links, styles and images unchanged.
