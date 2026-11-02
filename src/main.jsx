@@ -2,32 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './style.css';
 
-const STREAM_URL = 'https://server.streamcasthd.com/8682/stream';
 const PLAYER_URL = 'https://argentinastream.com/delassierras/';
 const METADATA_URL = 'https://server.streamcasthd.com/cp/get_info.php?p=8682';
 const copy = {
   en: {
-    navAbout: 'About', navListen: 'Listen', navLegal: 'Legal',
-    kicker: 'YOUR SOUNDTRACK, EVERY DAY', title: 'Playing Good Music',
-    intro: 'The music you love from the 80s, 90s and 2000s. Streaming 24/7.',
+    navAbout: 'About', navListen: 'Ways to listen', navLegal: 'Legal',
+    tagline: 'Commercial-free • Broadcasting 24/7', decades: '80s • 90s • 2000s',
     live: 'LIVE RADIO',
     play: 'Play radio', stop: 'Stop radio', aboutTitle: 'About the station',
     about: 'De las Sierras is an online radio station featuring a carefully selected mix of pop, rock and timeless favorites from the 80s, 90s and 2000s. Music around the clock.',
-    listenTitle: 'Listen wherever you are', listen: 'Enjoy our live broadcast directly from this website, on your favorite device.',
-    openStream: 'Open direct stream', legalTitle: 'Copyright information',
+    legalTitle: 'Copyright information',
     legal: '“De las Sierras - Playing Good Music” is an online radio station dedicated to sharing music for the personal enjoyment of its listeners. All music broadcast by the station is the property of its respective artists, composers, and record labels, who retain all rights to their recordings and compositions. This station does not intend to infringe upon any copyrights, but rather to support artists and promote their music. If you are a copyright holder and would like a particular song removed from our programming, please contact us. We will review and address your request as promptly as possible.',
     waysTitle: 'More ways to tune in', waysText: 'Find us on your favorite radio directories.', playersTitle: 'Listen with your favorite player', playersText: 'Open our live stream in a compatible player for an alternative listening experience.', androidTitle: 'Android app', androidText: 'Download our free Android app (APK from GitHub).', spotifyTitle: 'Our 80s • 90s • 2000s playlist', supportTitle: 'Support us', supportText: 'Enjoy the music? You can support the station on Ko-fi.', supportLink: 'Visit Ko-fi',
     footer: 'Playing Good Music · 24/7', langLabel: 'Language', nowPlaying: 'NOW PLAYING', tracks: 'Tracks', metadataError: 'Track information unavailable', updating: 'Loading track information…'
   },
   es: {
-    navAbout: 'Nosotros', navListen: 'Escuchar', navLegal: 'Legal',
-    kicker: 'LA MÚSICA QUE TE ACOMPAÑA', title: 'Playing Good Music',
-    intro: 'La música que te gusta de los 80, 90 y 2000. Transmitiendo las 24 horas.',
+    navAbout: 'Nosotros', navListen: 'Formas de escuchar', navLegal: 'Legal',
+    tagline: 'Sin publicidad • Transmitiendo las 24 horas', decades: '80s • 90s • 2000s',
     live: 'RADIO EN VIVO',
     play: 'Reproducir radio', stop: 'Detener radio', aboutTitle: 'Sobre la emisora',
     about: 'De las Sierras es una radio en línea con una cuidada selección de pop, rock y clásicos de los años 80, 90 y 2000. Música las 24 horas.',
-    listenTitle: 'Escucha desde donde estés', listen: 'Disfruta de nuestra transmisión en vivo directamente desde este sitio, en tu dispositivo favorito.',
-    openStream: 'Abrir transmisión directa', legalTitle: 'Información sobre derechos de autor',
+    legalTitle: 'Información sobre derechos de autor',
     legal: '“De las Sierras - Playing Good Music” es una emisora en línea dedicada a compartir música para el disfrute personal de los oyentes. Todo el contenido musical emitido es propiedad de sus respectivos autores y sellos discográficos, quienes conservan todos los derechos sobre las grabaciones y composiciones. Esta emisora no pretende infringir los derechos de autor, sino apoyar a los artistas y promover la difusión de sus obras. Si usted es titular de derechos de autor y desea que se retire alguna canción de nuestra programación, no dude en ponerse en contacto con nosotros; atenderemos su solicitud a la mayor brevedad.',
     waysTitle: 'Más formas de escucharnos', waysText: 'Encontranos en tus directorios de radio favoritos.', playersTitle: 'Escuchar con tu reproductor favorito', playersText: 'Abrí la transmisión en un reproductor compatible como alternativa para escuchar la radio.', androidTitle: 'Aplicación Android', androidText: 'Descargá nuestra aplicación gratuita para Android (APK desde GitHub).', spotifyTitle: 'Nuestra playlist de los 80 • 90 • 2000', supportTitle: 'Apoyá la radio', supportText: 'Si disfrutás de la música, podés apoyar a la emisora en Ko-fi.', supportLink: 'Visitar Ko-fi',
     footer: 'Playing Good Music · 24/7', langLabel: 'Idioma', nowPlaying: 'SONANDO AHORA', tracks: 'Canciones', metadataError: 'Información de canciones no disponible', updating: 'Cargando información…'
@@ -136,12 +131,11 @@ function App() {
     <section className="hero" id="home">
       <div className="hero-overlay" />
       <header className="topbar content-width">
-        <a className="brand" href="#home"><strong>DE LAS SIERRAS</strong><span>PLAYING GOOD MUSIC</span></a>
+        <a className="brand" href="#home"><strong>DE LAS SIERRAS</strong><span>PLAYING GOOD MUSIC</span><small>{t.tagline}</small><small>{t.decades}</small></a>
         <nav aria-label="Main navigation"><a href="#about">{t.navAbout}</a><a href="#listen">{t.navListen}</a><a href="#legal">{t.navLegal}</a></nav>
         <div className="language" aria-label={t.langLabel}><button type="button" aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button><span>/</span><button type="button" aria-pressed={lang === 'es'} onClick={() => setLang('es')}>ES</button></div>
       </header>
       <main className="hero-main content-width">
-        <div className="intro"><p className="eyebrow">{t.kicker}</p><h1>{t.title}</h1><p>{t.intro}</p></div>
         <div className="player-embed" id="player">
           <iframe
             src={PLAYER_URL}
@@ -161,8 +155,7 @@ function App() {
       </div>
     </section>
     <section className="section alternate" id="listen"><div className="content-width">
-      <span className="section-label">02 / LISTEN</span><h2>{t.listenTitle}</h2><p>{t.listen}</p>
-      <a className="outline-link" href={STREAM_URL} target="_blank" rel="noopener noreferrer">{t.openStream} ↗</a>
+      <span className="section-label">02 / WAYS TO LISTEN</span>
       <div className="listen-subsection"><h3>{t.playersTitle}</h3><p>{t.playersText}</p><PlayerLinks /></div>
       <div className="android-block"><div><h3>{t.androidTitle}</h3><p>{t.androidText}</p></div><a className="outline-link" href={androidApk} target="_blank" rel="noopener noreferrer" download>{lang === 'es' ? 'Descargar APK para Android' : 'Download Android APK'} ↗</a></div>
     </div></section>

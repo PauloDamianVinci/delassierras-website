@@ -16,3 +16,11 @@ Subir el contenido del ZIP a la raíz del repositorio GitHub, conservando carpet
 
 ## Pruebas
 Verificar el iframe, el historial y el selector de idiomas, además de los enlaces externos, la descarga APK y el QR de Ko-fi. Los enlaces de reproductores PLS/ASX requieren aplicaciones compatibles instaladas.
+
+
+## Version 2.3
+- Simplified hero: removed the three centered promotional texts.
+- Enlarged the brand in the upper left and added bilingual station descriptors.
+- Renamed the navigation item to Ways to listen / Formas de escuchar.
+- Removed the Listen wherever you are heading, description and direct stream link.
+- Retained external player links and Android APK download under Ways to listen.
