@@ -38,3 +38,8 @@ Verificar el iframe, el historial y el selector de idiomas, además de los enlac
 - Localized external player, radio directory and Spotify link tooltips for English and Spanish, including accessible labels.
 - Combined the footer into one copyright line.
 - Kept the audio iframe, SonicPanel polling, styling and other functionality unchanged.
+
+
+## v2.6.2 — Social links
+
+Added Facebook, Instagram and email contact icons to the existing footer, with responsive styling and accessible labels. No changes to streaming or track metadata.

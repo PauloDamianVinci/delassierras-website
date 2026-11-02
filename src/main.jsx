@@ -168,7 +168,22 @@ function App() {
       </a>
     </div></section>
     <section className="section content-width legal" id="legal"><span className="section-label">05 / LEGAL</span><h2>{t.legalTitle}</h2><p>{t.legal}</p></section>
-    <footer><div className="content-width footer-inner"><span>© {new Date().getFullYear()} De las Sierras - {t.footer}</span></div></footer>
+    <footer>
+      <div className="content-width footer-inner">
+        <span>© {new Date().getFullYear()} De las Sierras - {t.footer}</span>
+        <nav className="footer-social" aria-label={lang === 'es' ? 'Redes sociales y contacto' : 'Social media and contact'}>
+          <a href="https://www.facebook.com/DelasSierrasPlayingGoodMusic/" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6a23 23 0 0 0-2.5-.1c-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3V13h2.8v8z"/></svg>
+          </a>
+          <a href="https://www.instagram.com/delassierrasradio" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="mailto:delassierrasradio@gmail.com" title={lang === 'es' ? 'Enviar correo electrónico' : 'Send email'} aria-label={lang === 'es' ? 'Enviar correo electrónico' : 'Send email'}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 7 9-7"/></svg>
+          </a>
+        </nav>
+      </div>
+    </footer>
   </>;
 }
 createRoot(document.getElementById('root')).render(<App />);
