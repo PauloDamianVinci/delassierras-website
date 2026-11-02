@@ -50,3 +50,6 @@
 .hero-main{padding-top:55px}
 .listen-subsection{margin-top:0}
 @media(max-width:650px){.brand strong{font-size:clamp(19px,5.1vw,26px)}.brand span{font-size:clamp(10px,2.8vw,13px)}.brand small{font-size:10px}.topbar{align-items:flex-start}.hero-main{padding-top:48px}}
+
+/* v2.6 — yellow station descriptors */
+.brand small{color:#FFE44D}
