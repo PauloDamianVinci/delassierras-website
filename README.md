@@ -1,30 +1,25 @@
-# De las Sierras — Playing Good Music
+# De las Sierras — Playing Good Music (v2.1)
 
-Sitio web bilingüe (EN/ES) con React + Vite, listo para Cloudflare Pages.
+Sitio web React + Vite para Cloudflare Pages, bilingüe EN/ES, sin instalaciones locales.
 
-## Publicación sin instalaciones locales
+## Reproductor
 
-1. Crear un repositorio GitHub (por ejemplo `delassierras-website`).
-2. Subir el **contenido** de este ZIP a la raíz del repositorio (no la carpeta contenedora).
-3. En Cloudflare: Workers & Pages > Create > Pages > Connect to Git > seleccionar repositorio.
-4. Framework preset: Vite; build command: `npm run build`; output directory: `dist`.
-5. Publicar primero en el subdominio temporal `*.pages.dev`. No cambiar el DNS del dominio oficial hasta validar.
+El reproductor principal es un iframe de https://argentinastream.com/delassierras/ . La reproducción, los metadatos visibles dentro del iframe y la reconexión dependen de ArgentinaStream. **No** hay un segundo reproductor HTML Audio en paralelo.
 
-## Configuración
+## Historial
 
-- Stream: constante `STREAM_URL` en `src/main.jsx`.
-- Textos y traducciones: objeto `copy` en `src/main.jsx`.
-- Fondo: `public/Fondo03.jpg` (imagen original aportada por el propietario).
-- Idioma: detecta navegador, admite cambio manual y guarda preferencia local.
+El historial separado consulta https://server.streamcasthd.com/cp/get_info.php?p=8682 cada 15 segundos. Conserva la primera pista turquesa (#27F5EE), los sweepers grises (grey), el resto blanco y el encabezado azul (#2A7FFF). Si la primera pista es un sweeper, tiene prioridad el turquesa. Se conserva la última respuesta válida ante fallos. La API debe permitir CORS desde el dominio de Cloudflare Pages.
 
-## Alcance de esta primera versión
+## Publicación
 
-- Reproducción HTML5 con Play/Stop. No autoplay por restricciones de navegadores.
-- No incluye todavía API de canción actual, enlaces a directorios, redes sociales ni APK: se incorporarán después de verificar las URLs y la integración.
-- El stream se solicita directamente a SonicPanel; Cloudflare aloja solamente la web.
-- No hay promesa de reconexión automática: esta funcionalidad se evaluará y probará posteriormente.
-- Para SEO internacional avanzado, generar rutas `/en/` y `/es/` con HTML prerenderizado en una iteración posterior.
+Subir **todo el contenido** de este ZIP a la raíz del repositorio GitHub (no el ZIP como archivo), reemplazando los archivos existentes. Cloudflare Pages: framework React (Vite), build `npm run build`, output `dist`, branch `main`. La imagen `public/Fondo03.jpg` está incluida.
 
-## Desarrollo opcional
+## Pruebas
 
-`npm install` y `npm run dev` para pruebas locales; **no son necesarios** si se publica desde Cloudflare.
+1. Confirmar que el iframe se visualiza y reproduce audio (PC y móvil).
+2. Verificar artista/título y reconexión dentro del iframe.
+3. Comprobar historial y colores (y que no hay dos reproductores simultáneos).
+4. Comprobar cambio EN/ES.
+5. Si el iframe queda cortado, ajustar `.player-embed` height en `src/style.css` según el tamaño real del reproductor.
+
+No cambiar todavía el dominio personalizado de Google Sites.
