@@ -31,3 +31,10 @@ Verificar el iframe, el historial y el selector de idiomas, además de los enlac
 - Updated station description in both languages.
 - Neutral Spanish copy throughout the website.
 - Audio player, history polling, links, styles and images unchanged.
+
+## Version 2.5
+
+- Replaced the provider-identifying iframe title with a neutral accessible title. Third-party iframe tooltips remain outside the site's control.
+- Localized external player, radio directory and Spotify link tooltips for English and Spanish, including accessible labels.
+- Combined the footer into one copyright line.
+- Kept the audio iframe, SonicPanel polling, styling and other functionality unchanged.
