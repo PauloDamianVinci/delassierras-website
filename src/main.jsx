@@ -81,7 +81,8 @@ function TrackHistory({ lang }) {
         {tracks.map((item, index) => {
           const first = /^1\.\)/.test(item);
           const sweeper = /De las Sierras\s*-\s*Sweeper/i.test(item);
-          return <li key={`${index}-${item}`} className={first ? 'first-item' : sweeper ? 'sweeper-item' : ''}>{item}</li>;
+          const displayItem = item.replace(/^(\d{1,2})\.\)/, '$1)');
+          return <li key={`${index}-${item}`} className={first ? 'first-item' : sweeper ? 'sweeper-item' : ''}>{displayItem}</li>;
         })}
       </ol> : <p className="metadata-empty">{failed ? t.metadataError : t.updating}</p>}
     </div>
