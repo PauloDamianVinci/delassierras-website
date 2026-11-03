@@ -13,7 +13,7 @@ const copy = {
     about: 'De las Sierras - Playing Good Music is an online radio station featuring a carefully selected mix of pop, rock and timeless favorites from the 80s, 90s and 2000s. Music around the clock.',
     legalTitle: 'Copyright information',
     legal: '“De las Sierras - Playing Good Music” is an online radio station dedicated to sharing music for the personal enjoyment of its listeners. All music broadcast by the station is the property of its respective artists, composers, and record labels, who retain all rights to their recordings and compositions. This station does not intend to infringe upon any copyrights, but rather to support artists and promote their music. If you are a copyright holder and would like a particular song removed from our programming, please contact us. We will review and address your request as promptly as possible.',
-    waysTitle: 'More ways to tune in', waysText: 'Find us on your favorite radio directories.', playersTitle: 'Listen with your favorite player', playersText: 'Open our live stream in a compatible player for an alternative listening experience.', androidTitle: 'Android app', androidText: 'Download our free Android app (APK from GitHub).', spotifyTitle: 'Our 80s • 90s • 2000s playlist', supportTitle: 'Support us', supportText: 'Enjoy the music? You can support the station on Ko-fi.', supportLink: 'Visit Ko-fi',
+    waysTitle: 'More ways to tune in', waysText: 'Find us on your favorite radio directories.', playersTitle: 'Listen with your favorite player', playersText: 'Open our live stream in a compatible player for an alternative listening experience.', androidTitle: 'Android app', androidText: 'Download our free Android app directly from our website.', spotifyTitle: 'Our 80s • 90s • 2000s playlist', supportTitle: 'Support us', supportText: 'Enjoy the music? You can support the station on Ko-fi.', supportLink: 'Visit Ko-fi',
     footer: 'Playing Good Music · 24/7', listenWith: 'Listen with', listenOn: 'Listen on', spotifyTooltip: 'Listen to our playlist on Spotify', spotifyAlt: 'Listen on Spotify', langLabel: 'Language', nowPlaying: 'NOW PLAYING', tracks: 'Recently Played', metadataError: 'Track information unavailable', updating: 'Loading track information…'
   },
   es: {
@@ -24,7 +24,7 @@ const copy = {
     about: 'De las Sierras - Playing Good Music es una radio en línea con una cuidada selección de pop, rock y clásicos de los años 80, 90 y 2000. Música las 24 horas.',
     legalTitle: 'Información sobre derechos de autor',
     legal: '“De las Sierras - Playing Good Music” es una emisora en línea dedicada a compartir música para el disfrute personal de los oyentes. Todo el contenido musical emitido es propiedad de sus respectivos autores y sellos discográficos, quienes conservan todos los derechos sobre las grabaciones y composiciones. Esta emisora no pretende infringir los derechos de autor, sino apoyar a los artistas y promover la difusión de sus obras. Si usted es titular de derechos de autor y desea que se retire alguna canción de nuestra programación, no dude en ponerse en contacto con nosotros; atenderemos su solicitud a la mayor brevedad.',
-    waysTitle: 'Más formas de escucharnos', waysText: 'Encuéntranos en tus directorios de radio favoritos.', playersTitle: 'Escuchar con tu reproductor favorito', playersText: 'Abre la transmisión en un reproductor compatible como alternativa para escuchar la radio.', androidTitle: 'Aplicación Android', androidText: 'Descarga nuestra aplicación gratuita para Android (APK desde GitHub).', spotifyTitle: 'Nuestra playlist de los 80 • 90 • 2000', supportTitle: 'Apoya la radio', supportText: 'Si disfrutas de la música, puedes apoyar a la emisora en Ko-fi.', supportLink: 'Visitar Ko-fi',
+    waysTitle: 'Más formas de escucharnos', waysText: 'Encuéntranos en tus directorios de radio favoritos.', playersTitle: 'Escuchar con tu reproductor favorito', playersText: 'Abre la transmisión en un reproductor compatible como alternativa para escuchar la radio.', androidTitle: 'Aplicación Android', androidText: 'Descarga nuestra aplicación gratuita para Android directamente desde nuestro sitio web.', spotifyTitle: 'Nuestra playlist de los 80 • 90 • 2000', supportTitle: 'Apoya la radio', supportText: 'Si disfrutas de la música, puedes apoyar a la emisora en Ko-fi.', supportLink: 'Visitar Ko-fi',
     footer: 'Playing Good Music · 24/7', listenWith: 'Escuchar con', listenOn: 'Escuchar en', spotifyTooltip: 'Escuchar nuestra playlist en Spotify', spotifyAlt: 'Escuchar en Spotify', langLabel: 'Idioma', nowPlaying: 'SONANDO AHORA', tracks: 'Últimas canciones', metadataError: 'Información de canciones no disponible', updating: 'Cargando información…'
   }
 };
@@ -100,7 +100,7 @@ const externalPlayers = [
   { name: 'Windows Media', format: 'asx', image: 'https://server.streamcasthd.com/cp/inc/images/players/mediaplayer.png' },
   { name: 'Apple Music', format: 'pls', image: 'https://server.streamcasthd.com/cp/inc/images/players/itunes.png' }
 ];
-const androidApk = 'https://github.com/PauloDamianVinci/DeLasSierrasRadio-Android/releases/download/v1.0.0/DeLasSierrasRadio-v1.0.0.apk';
+const androidApk = '/downloads/DeLasSierrasRadio.apk';
 const spotifyPlaylist = 'https://open.spotify.com/playlist/1z5gkk6jZkD07qpwLbglhj?si=7wnmV7jST6GG50reqrgOAA';
 const kofiUrl = 'https://ko-fi.com/delassierrasplayinggoodmusic';
 function DirectoryLinks({ lang }) {
@@ -159,7 +159,7 @@ function App() {
     <section className="section alternate" id="listen"><div className="content-width">
       <span className="section-label">{t.navListen}</span>
       <div className="listen-subsection"><h3>{t.playersTitle}</h3><p>{t.playersText}</p><PlayerLinks lang={lang} /></div>
-      <div className="android-block"><div><h3>{t.androidTitle}</h3><p>{t.androidText}</p></div><a className="outline-link" href={androidApk} target="_blank" rel="noopener noreferrer" download>{lang === 'es' ? 'Descargar APK para Android' : 'Download Android APK'} ↗</a></div>
+      <div className="android-block"><div><h3>{t.androidTitle}</h3><p>{t.androidText}</p></div><a className="outline-link" href={androidApk} download="DeLasSierrasRadio.apk">{lang === 'es' ? 'Descargar APK para Android' : 'Download Android APK'} ↗</a></div>
     </div></section>
     <section className="section content-width" id="directories"><span className="section-label">03 / DIRECTORIES</span><h2>{t.waysTitle}</h2><p>{t.waysText}</p><DirectoryLinks lang={lang} /></section>
     <section className="section alternate" id="spotify"><div className="content-width spotify-section"><span className="section-label">04 / PLAYLIST</span><h2>{t.spotifyTitle}</h2>

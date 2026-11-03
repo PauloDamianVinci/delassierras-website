@@ -7,7 +7,7 @@ Sitio React + Vite para Cloudflare Pages, bilingüe EN/ES.
 - Historial SonicPanel actualizado cada 15 segundos; primera pista turquesa, sweepers grises, restantes blancas.
 - Directorios: TuneIn, Online Radio Box, radio.net, Live Online Radio.
 - Reproductores externos: Winamp, VLC, Windows Media y Apple Music (enlaces PLS/ASX).
-- Descarga de aplicación Android mediante GitHub Releases.
+- Descarga de aplicación Android desde Cloudflare Pages (`public/downloads/DeLasSierrasRadio.apk`).
 - Playlist de Spotify.
 - Ko-fi con imagen QR original provista, alojada en `public/kofi-qr.png`.
 
@@ -23,7 +23,7 @@ Verificar el iframe, el historial y el selector de idiomas, además de los enlac
 - Enlarged the brand in the upper left and added bilingual station descriptors.
 - Renamed the navigation item to Ways to listen / Formas de escuchar.
 - Removed the Listen wherever you are heading, description and direct stream link.
-- Retained external player links and Android APK download under Ways to listen.
+- Retained external player links and direct Android APK download under Ways to listen.
 
 ## Version 2.4
 - Navigation and section names: Listen Anywhere / Escucha desde cualquier lugar, The Station / La radio.
@@ -43,3 +43,10 @@ Verificar el iframe, el historial y el selector de idiomas, además de los enlac
 ## v2.6.2 — Social links
 
 Added Facebook, Instagram and email contact icons to the existing footer, with responsive styling and accessible labels. No changes to streaming or track metadata.
+
+## v2.6.4 — APK alojada en Cloudflare Pages
+
+- La APK firmada v1.9.0 está en `public/downloads/DeLasSierrasRadio.apk`. Vite la copiará a `dist/downloads/DeLasSierrasRadio.apk` durante el build.
+- El botón de descarga usa `/downloads/DeLasSierrasRadio.apk` y no expone el usuario de GitHub.
+- Para futuras versiones, reemplazar ese archivo APK y volver a desplegar.
+- No publicar el ZIP del proyecto como sitio estático sin ejecutar `npm run build`.
