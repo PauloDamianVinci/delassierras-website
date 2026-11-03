@@ -126,7 +126,14 @@ function App() {
   const t = copy[lang];
   useEffect(() => {
     document.documentElement.lang = lang;
-    document.title = 'De las Sierras — Playing Good Music';
+    document.title = 'De las Sierras - Playing Good Music | Online Radio 24/7';
+    const description = lang === 'es'
+      ? 'Escucha pop, rock y clásicos de los años 80, 90 y 2000. Radio online las 24 horas.'
+      : 'Listen to pop, rock and timeless favorites from the 80s, 90s and 2000s. Online radio streaming 24/7.';
+    document.querySelector('meta[name="description"]')?.setAttribute('content', description);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
+    document.querySelector('meta[property="og:locale"]')?.setAttribute('content', lang === 'es' ? 'es_AR' : 'en_US');
     try { localStorage.setItem('dls-language', lang); } catch { /* optional */ }
   }, [lang]);
   return <>
