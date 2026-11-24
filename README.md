@@ -1,4 +1,4 @@
-# De las Sierras — Playing Good Music (v2.4)
+# De las Sierras — Playing Good Music (v2.6.8)
 
 Sitio React + Vite para Cloudflare Pages, bilingüe EN/ES.
 
@@ -50,3 +50,10 @@ Added Facebook, Instagram and email contact icons to the existing footer, with r
 - El botón de descarga usa `/downloads/DeLasSierrasRadio.apk` y no expone el usuario de GitHub.
 - Para futuras versiones, reemplazar ese archivo APK y volver a desplegar.
 - No publicar el ZIP del proyecto como sitio estático sin ejecutar `npm run build`.
+
+
+## v2.6.8 — Distribución responsive
+
+- Desde 960 px de ancho de ventana, reproductor a la izquierda e historial a la derecha, alineados arriba.
+- Por debajo de 960 px, se conserva la distribución vertical original.
+- Sin cambios en el reproductor, la consulta de historial ni los demás componentes.

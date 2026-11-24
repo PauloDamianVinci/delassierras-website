@@ -63,3 +63,18 @@
 .footer-social a:focus-visible{outline:2px solid #FFE44D;outline-offset:3px}
 .footer-social svg{width:22px;height:22px}
 @media(max-width:650px){.footer-inner{align-items:center;text-align:center;gap:18px}.footer-social{justify-content:center}}
+
+/* v2.6.8 — responsive player and song history */
+@media (min-width: 960px) {
+  .hero-main {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: center;
+    align-items: start;
+  }
+  .hero-main > .player-embed,
+  .hero-main > .track-metadata {
+    width: 100%;
+    min-width: 0;
+  }
+}
