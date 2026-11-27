@@ -1,197 +1,72 @@
-import React, { useEffect, useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import React,{useEffect,useRef,useState} from 'react';
+import{createRoot}from'react-dom/client';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import './style.css';
-
-const PLAYER_URL = 'https://argentinastream.com/delassierras/';
-const METADATA_URL = 'https://server.streamcasthd.com/cp/get_info.php?p=8682';
-const copy = {
-  en: {
-    navAbout: 'The Station', navListen: 'Listen Anywhere', navLegal: 'Legal',
-    tagline: 'Commercial-free • Broadcasting 24/7', decades: '80s • 90s • 2000s',
-    live: 'LIVE RADIO',
-    play: 'Play radio', stop: 'Stop radio', aboutTitle: 'The Station',
-    about: 'De las Sierras - Playing Good Music is an online radio station featuring a carefully selected mix of pop, rock and timeless favorites from the 80s, 90s and 2000s. Music around the clock.',
-    legalTitle: 'Copyright information',
-    legal: '“De las Sierras - Playing Good Music” is an online radio station dedicated to sharing music for the personal enjoyment of its listeners. All music broadcast by the station is the property of its respective artists, composers, and record labels, who retain all rights to their recordings and compositions. This station does not intend to infringe upon any copyrights, but rather to support artists and promote their music. If you are a copyright holder and would like a particular song removed from our programming, please contact us. We will review and address your request as promptly as possible.',
-    waysTitle: 'More ways to tune in', waysText: 'Find us on your favorite radio directories.', playersTitle: 'Listen with your favorite player', playersText: 'Open our live stream in a compatible player for an alternative listening experience.', androidTitle: 'Android app', androidText: 'Download our free Android app directly from our website.', spotifyTitle: 'Our 80s • 90s • 2000s playlist', supportTitle: 'Support us', supportText: 'Enjoy the music? You can support the station on Ko-fi.', supportLink: 'Visit Ko-fi',
-    footer: 'Playing Good Music · 24/7', listenWith: 'Listen with', listenOn: 'Listen on', spotifyTooltip: 'Listen to our playlist on Spotify', spotifyAlt: 'Listen on Spotify', langLabel: 'Language', nowPlaying: 'NOW PLAYING', tracks: 'Recently Played', metadataError: 'Track information unavailable', updating: 'Loading track information…'
-  },
-  es: {
-    navAbout: 'La radio', navListen: 'Escucha desde cualquier lugar', navLegal: 'Legal',
-    tagline: 'Sin publicidad • Transmitiendo las 24 horas', decades: '80s • 90s • 2000s',
-    live: 'RADIO EN VIVO',
-    play: 'Reproducir radio', stop: 'Detener radio', aboutTitle: 'La radio',
-    about: 'De las Sierras - Playing Good Music es una radio en línea con una cuidada selección de pop, rock y clásicos de los años 80, 90 y 2000. Música las 24 horas.',
-    legalTitle: 'Información sobre derechos de autor',
-    legal: '“De las Sierras - Playing Good Music” es una emisora en línea dedicada a compartir música para el disfrute personal de los oyentes. Todo el contenido musical emitido es propiedad de sus respectivos autores y sellos discográficos, quienes conservan todos los derechos sobre las grabaciones y composiciones. Esta emisora no pretende infringir los derechos de autor, sino apoyar a los artistas y promover la difusión de sus obras. Si usted es titular de derechos de autor y desea que se retire alguna canción de nuestra programación, no dude en ponerse en contacto con nosotros; atenderemos su solicitud a la mayor brevedad.',
-    waysTitle: 'Más formas de escucharnos', waysText: 'Encuéntranos en tus directorios de radio favoritos.', playersTitle: 'Escuchar con tu reproductor favorito', playersText: 'Abre la transmisión en un reproductor compatible como alternativa para escuchar la radio.', androidTitle: 'Aplicación Android', androidText: 'Descarga nuestra aplicación gratuita para Android directamente desde nuestro sitio web.', spotifyTitle: 'Nuestra playlist de los 80 • 90 • 2000', supportTitle: 'Apoya la radio', supportText: 'Si disfrutas de la música, puedes apoyar a la emisora en Ko-fi.', supportLink: 'Visitar Ko-fi',
-    footer: 'Playing Good Music · 24/7', listenWith: 'Escuchar con', listenOn: 'Escuchar en', spotifyTooltip: 'Escuchar nuestra playlist en Spotify', spotifyAlt: 'Escuchar en Spotify', langLabel: 'Idioma', nowPlaying: 'SONANDO AHORA', tracks: 'Últimas canciones', metadataError: 'Información de canciones no disponible', updating: 'Cargando información…'
-  }
-};
-function initialLanguage() {
-  try {
-    const saved = localStorage.getItem('dls-language');
-    if (saved === 'en' || saved === 'es') return saved;
-  } catch { /* storage may be disabled */ }
-  return (navigator.languages || [navigator.language || 'en']).some((v) => v.toLowerCase().startsWith('es')) ? 'es' : 'en';
+const API='https://script.google.com/macros/s/AKfycbwzp5snajx04rcSom7kBt8eiCs_vAy159rClRkpdchS0ZbVb6_F_p1v8NNQmgHhyLuw/exec';
+const GEO='https://script.google.com/macros/s/AKfycbwQ86rcpL10HNz1Z3QhI2emWulCx-ECiJmO9zut3rvQXY8Kh_FkvskG_j0SsRD0UAEArw/exec';
+const META='https://server.streamcasthd.com/cp/get_info.php?p=8682';
+const BOT=/Applebot|hisbot|ClaudeBot|meta-externalagent|shoutcast|relay|curl|wget|TuneIn-DirMon|Scanning|ffmpeg/i;
+// Cache en memoria compartida entre ciclos de actualización.
+const cache=new Map();
+const pendingGeo=new Map();
+const GEO_TTL_MS=24*60*60*1000;
+const GEO_FAILURE_TTL_MS=60*1000;
+const GEO_TIMEOUT_MS=8000;
+const GEO_CACHE_LIMIT=500;
+function storeGeo(ip,value,ttl){
+  cache.delete(ip);
+  cache.set(ip,{expires:Date.now()+ttl,value});
+  while(cache.size>GEO_CACHE_LIMIT)cache.delete(cache.keys().next().value);
 }
-// The SonicPanel history endpoint returns strings; never insert them as HTML.
-// Some responses include <br> separators; convert these to lines safely.
-function normalizeHistory(raw) {
-  if (!Array.isArray(raw)) return [];
-  return raw.flatMap(value => {
-    if (typeof value !== 'string') return [];
-    return value.replace(/<br\s*\/?\s*>/gi, '\n')
-      .replace(/<\/p\s*>/gi, '\n')
-      .replace(/<[^>]*>/g, '')
-      .split(/\r?\n/)
-      .map(line => line.trim())
-      .filter(Boolean);
-  });
+const ipOf=o=>String(o.ip||o.hostname||o.HOSTNAME||'0.0.0.0').trim();
+const botOf=o=>BOT.test(String(o.useragent||''))||Number(o.time||0)<=5;
+// Humanos primero, por ciudad y luego por IP; bots en su orden original.
+const cityCollator=new Intl.Collator('es',{sensitivity:'base'});
+const ipCollator=new Intl.Collator('en',{numeric:true});
+function compareListeners(a,b){
+  if(a.bot!==b.bot)return Number(a.bot)-Number(b.bot);
+  if(a.bot)return 0;
+  const city=x=>{const c=String(x.geo?.city||'').trim();return c==='-'?'':c};
+  const ac=city(a),bc=city(b);
+  if(Boolean(ac)!==Boolean(bc))return ac?-1:1;
+  return cityCollator.compare(ac,bc)||ipCollator.compare(a.ip,b.ip);
 }
-function TrackHistory({ lang }) {
-  const [tracks, setTracks] = useState([]);
-  const [failed, setFailed] = useState(false);
-  const t = copy[lang];
-  useEffect(() => {
-    let active = true;
-    let busy = false;
-    const controller = new AbortController();
-    async function refresh() {
-      if (busy) return;
-      busy = true;
-      try {
-        const response = await fetch(METADATA_URL, { cache: 'no-store', signal: controller.signal });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        if (!Array.isArray(data.history)) throw new Error('Invalid history');
-        if (active) { setTracks(normalizeHistory(data.history)); setFailed(false); }
-      } catch (err) {
-        if (active && err.name !== 'AbortError') setFailed(true);
-      } finally { busy = false; }
+const duration=s=>{const m=Math.floor(Math.max(0,Number(s)||0)/60);return m<60?`${m} min`:m<1440?`${Math.floor(m/60)} h ${m%60} min`:`${Math.floor(m/1440)} d ${Math.floor(m%1440/60)} h`};
+function normalizeHistory(raw){return Array.isArray(raw)?raw.flatMap(v=>typeof v==='string'?v.replace(/<br\s*\/?\s*>/gi,'\n').replace(/<\/p\s*>/gi,'\n').replace(/<[^>]*>/g,'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean):[]).slice(0,10):[]}
+async function geo(ip){
+  if(!ip||ip==='0.0.0.0'||ip==='127.0.0.1')return null;
+  const cached=cache.get(ip);
+  if(cached&&cached.expires>Date.now())return cached.value;
+  if(cached)cache.delete(ip);
+  // Una misma IP nunca dispara dos consultas simultáneas.
+  if(pendingGeo.has(ip))return pendingGeo.get(ip);
+  const request=(async()=>{
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),GEO_TIMEOUT_MS);
+    try{
+      const response=await fetch(`${GEO}?ip=${encodeURIComponent(ip)}`,{signal:controller.signal});
+      if(!response.ok)throw new Error(`Geolocalización HTTP ${response.status}`);
+      const data=await response.json();
+      const value=data.success?{
+        lat:Number(data.latitude),lon:Number(data.longitude),
+        city:data.city||'-',country:data.country||'Desconocido',code:data.country_code||''
+      }:null;
+      // Los errores se reintentan después de un minuto, no en cada actualización.
+      storeGeo(ip,value,value?GEO_TTL_MS:GEO_FAILURE_TTL_MS);
+      return value;
+    }catch{
+      storeGeo(ip,null,GEO_FAILURE_TTL_MS);
+      return null;
+    }finally{
+      clearTimeout(timeout);
+      pendingGeo.delete(ip);
     }
-    refresh();
-    const timer = setInterval(refresh, 15000);
-    return () => { active = false; clearInterval(timer); controller.abort(); };
-  }, []);
-  return <div className="track-metadata" aria-live="off">
-    <div className="history-panel">
-      <h2 className="history-title">{t.tracks}</h2>
-      {tracks.length ? <ol className="history-list">
-        {tracks.map((item, index) => {
-          const first = /^1\.\)/.test(item);
-          const sweeper = /De las Sierras\s*-\s*Sweeper/i.test(item);
-          const displayItem = item.replace(/^(\d{1,2})\.\)/, '$1)');
-          return <li key={`${index}-${item}`} className={first ? 'first-item' : sweeper ? 'sweeper-item' : ''}>{displayItem}</li>;
-        })}
-      </ol> : <p className="metadata-empty">{failed ? t.metadataError : t.updating}</p>}
-    </div>
-  </div>;
+  })();
+  pendingGeo.set(ip,request);
+  return request;
 }
-
-const directories = [
-  { name: 'TuneIn', url: 'https://tunein.com/radio/De-Las-Sierras--Playing-Good-Music-s336109/', image: 'https://res.cloudinary.com/ddlwjsfml/image/upload/v1735231032/Radio/TuneIn_py6uby.png' },
-  { name: 'Online Radio Box', url: 'https://onlineradiobox.com/ar/delassierras/', image: 'https://cdn.onlineradiobox.com/img/b/88x31.png' },
-  { name: 'radio.net', url: 'https://www.radio.net/s/delassierrasradio/', image: 'https://res.cloudinary.com/ddlwjsfml/image/upload/v1733425961/Radio/radio-netsmall_ukpwki.png' },
-  { name: 'Live Online Radio', url: 'https://liveonlineradio.net/es/de-las-sierras', image: 'https://res.cloudinary.com/ddlwjsfml/image/upload/v1735903771/Radio/logo_byqjcj.png' }
-];
-const externalPlayers = [
-  { name: 'Winamp', format: 'pls', image: 'https://server.streamcasthd.com/cp/inc/images/players/winamp2.png' },
-  { name: 'VLC', format: 'pls', image: 'https://server.streamcasthd.com/cp/inc/images/players/vlc.png' },
-  { name: 'Windows Media', format: 'asx', image: 'https://server.streamcasthd.com/cp/inc/images/players/mediaplayer.png' },
-  { name: 'Apple Music', format: 'pls', image: 'https://server.streamcasthd.com/cp/inc/images/players/itunes.png' }
-];
-const androidApk = '/downloads/DeLasSierrasRadio.apk';
-const spotifyPlaylist = 'https://open.spotify.com/playlist/1z5gkk6jZkD07qpwLbglhj?si=7wnmV7jST6GG50reqrgOAA';
-const kofiUrl = 'https://ko-fi.com/delassierrasplayinggoodmusic';
-function DirectoryLinks({ lang }) {
-  const t = copy[lang];
-  return <div className="directory-grid">{directories.map(item =>
-    <a key={item.name} href={item.url} target="_blank" rel="noopener noreferrer" title={`${t.listenOn} ${item.name}`} aria-label={`${t.listenOn} ${item.name}`}>
-      <img src={item.image} alt={item.name} loading="lazy" />
-    </a>
-  )}</div>;
-}
-function PlayerLinks({ lang }) {
-  const t = copy[lang];
-  return <div className="external-player-grid">{externalPlayers.map(item =>
-    <a className="external-player" key={item.name} href={`https://server.streamcasthd.com/cp/links.php?p=8682&m=${item.format}`} target="_blank" rel="noopener noreferrer" title={`${t.listenWith} ${item.name}`} aria-label={`${t.listenWith} ${item.name}`}>
-      <span className="external-player-icon"><img src={item.image} alt="" loading="lazy" /></span>
-      <span>{item.name}</span>
-    </a>
-  )}</div>;
-}
-
-function App() {
-  const [lang, setLang] = useState(initialLanguage);
-  const t = copy[lang];
-  useEffect(() => {
-    document.documentElement.lang = lang;
-    document.title = 'De las Sierras - Playing Good Music | Online Radio 24/7';
-    const description = lang === 'es'
-      ? 'Escucha pop, rock y clásicos de los años 80, 90 y 2000. Radio online las 24 horas.'
-      : 'Listen to pop, rock and timeless favorites from the 80s, 90s and 2000s. Online radio streaming 24/7.';
-    document.querySelector('meta[name="description"]')?.setAttribute('content', description);
-    document.querySelector('meta[property="og:description"]')?.setAttribute('content', description);
-    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', description);
-    document.querySelector('meta[property="og:locale"]')?.setAttribute('content', lang === 'es' ? 'es_AR' : 'en_US');
-    try { localStorage.setItem('dls-language', lang); } catch { /* optional */ }
-  }, [lang]);
-  return <>
-    <section className="hero" id="home">
-      <div className="hero-overlay" />
-      <header className="topbar content-width">
-        <a className="brand" href="#home"><strong>DE LAS SIERRAS</strong><span>PLAYING GOOD MUSIC</span><small>{t.tagline}</small><small>{t.decades}</small></a>
-        <nav aria-label="Main navigation"><a href="#about">{t.navAbout}</a><a href="#listen">{t.navListen}</a><a href="#legal">{t.navLegal}</a></nav>
-        <div className="language" aria-label={t.langLabel}><button type="button" aria-pressed={lang === 'en'} onClick={() => setLang('en')}>EN</button><span>/</span><button type="button" aria-pressed={lang === 'es'} onClick={() => setLang('es')}>ES</button></div>
-      </header>
-      <main className="hero-main content-width">
-        <div className="player-embed" id="player">
-          <iframe
-            src={PLAYER_URL}
-            title="De las Sierras Radio"
-            allow="autoplay; encrypted-media"
-            loading="eager"
-          />
-        </div>
-        <TrackHistory lang={lang} />
-      </main>
-      <a className="scroll-hint" href="#about" aria-label={t.navAbout}>⌄</a>
-    </section>
-    <section className="section content-width" id="about">
-      <span className="section-label">{t.navAbout}</span><h2>{t.aboutTitle}</h2><p>{t.about}</p>
-      <div className="support-block"><div><h3>{t.supportTitle}</h3><p>{t.supportText}</p><a className="outline-link" href={kofiUrl} target="_blank" rel="noopener noreferrer">{t.supportLink} ↗</a></div>
-        <a className="kofi-qr" href={kofiUrl} target="_blank" rel="noopener noreferrer" aria-label={t.supportLink}><img src="/kofi-qr.png" alt="Ko-fi QR code" loading="lazy" /></a>
-      </div>
-    </section>
-    <section className="section alternate" id="listen"><div className="content-width">
-      <span className="section-label">{t.navListen}</span>
-      <div className="listen-subsection"><h3>{t.playersTitle}</h3><p>{t.playersText}</p><PlayerLinks lang={lang} /></div>
-      <div className="android-block"><div><h3>{t.androidTitle}</h3><p>{t.androidText}</p></div><a className="outline-link" href={androidApk} download="DeLasSierrasRadio.apk">{lang === 'es' ? 'Descargar APK para Android' : 'Download Android APK'} ↗</a></div>
-    </div></section>
-    <section className="section content-width" id="directories"><span className="section-label">03 / DIRECTORIES</span><h2>{t.waysTitle}</h2><p>{t.waysText}</p><DirectoryLinks lang={lang} /></section>
-    <section className="section alternate" id="spotify"><div className="content-width spotify-section"><span className="section-label">04 / PLAYLIST</span><h2>{t.spotifyTitle}</h2>
-      <a href={spotifyPlaylist} target="_blank" rel="noopener noreferrer" title={t.spotifyTooltip} aria-label={t.spotifyTooltip}>
-        <img src="https://res.cloudinary.com/ddlwjsfml/image/upload/v1790267401/Radio/Spoty_algizh.png" alt={t.spotifyAlt} loading="lazy" />
-      </a>
-    </div></section>
-    <section className="section content-width legal" id="legal"><span className="section-label">05 / LEGAL</span><h2>{t.legalTitle}</h2><p>{t.legal}</p></section>
-    <footer>
-      <div className="content-width footer-inner">
-        <span>© {new Date().getFullYear()} De las Sierras - {t.footer}</span>
-        <nav className="footer-social" aria-label={lang === 'es' ? 'Redes sociales y contacto' : 'Social media and contact'}>
-          <a href="https://www.facebook.com/DelasSierrasPlayingGoodMusic/" target="_blank" rel="noopener noreferrer" title="Facebook" aria-label="Facebook">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M13.5 21v-8h2.7l.4-3.1h-3.1v-2c0-.9.3-1.5 1.6-1.5h1.7V3.6a23 23 0 0 0-2.5-.1c-2.5 0-4.2 1.5-4.2 4.3v2.1H7.3V13h2.8v8z"/></svg>
-          </a>
-          <a href="https://www.instagram.com/delassierrasradio" target="_blank" rel="noopener noreferrer" title="Instagram" aria-label="Instagram">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
-          </a>
-          <a href="mailto:delassierrasradio@gmail.com" title={lang === 'es' ? 'Enviar correo electrónico' : 'Send email'} aria-label={lang === 'es' ? 'Enviar correo electrónico' : 'Send email'}>
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 7 9-7"/></svg>
-          </a>
-        </nav>
-      </div>
-    </footer>
-  </>;
-}
-createRoot(document.getElementById('root')).render(<App />);
+function usePolling(url,period,transform=x=>x){const [state,setState]=useState({data:null,error:false});useEffect(()=>{let active=true,busy=false;const ctrl=new AbortController();async function load(){if(busy)return;busy=true;try{const r=await fetch(url,{cache:'no-store',signal:ctrl.signal});if(!r.ok)throw Error(`HTTP ${r.status}`);const d=transform(await r.json());if(active)setState({data:d,error:false})}catch(e){if(active&&e.name!=='AbortError')setState(s=>({...s,error:true}))}finally{busy=false}}load();const id=setInterval(load,period);return()=>{active=false;clearInterval(id);ctrl.abort()}},[url,period]);return state}
+function MapPanel({listeners}){const node=useRef(null),map=useRef(null),layer=useRef(null),lastLocations=useRef('');useEffect(()=>{const m=L.map(node.current).setView([0,10],2);map.current=m;L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors',className:'dark-map-tiles'}).addTo(m);layer.current=L.layerGroup().addTo(m);const observer=new ResizeObserver(()=>m.invalidateSize());observer.observe(node.current);return()=>{observer.disconnect();m.remove()}},[]);useEffect(()=>{if(!layer.current)return;layer.current.clearLayers();const pts=[];listeners.filter(x=>!x.bot&&x.geo&&Number.isFinite(x.geo.lat)&&Number.isFinite(x.geo.lon)).forEach(x=>{const ll=[x.geo.lat,x.geo.lon];L.circleMarker(ll,{radius:7,color:'#12d5e6',fillOpacity:.8}).bindPopup(document.createTextNode(`${x.ip} — ${x.geo.city}, ${x.geo.country}`)).addTo(layer.current);pts.push(ll)});const locationKey=[...new Set(pts.map(p=>p.join(',')))].sort().join('|');if(locationKey!==lastLocations.current){lastLocations.current=locationKey;if(pts.length){map.current.invalidateSize();if(pts.length===1){map.current.setView(pts[0],5)}else{map.current.fitBounds(L.latLngBounds(pts).pad(.25),{maxZoom:7,animate:false})}}else{map.current.setView([0,10],2)}}},[listeners]);return <div className="map" ref={node}/>}
+function App(){const {data:raw,error:err}=usePolling(API,20000,x=>{if(!Array.isArray(x))throw Error('Respuesta inválida');return x});const {data:tracks,error:tracksError}=usePolling(META,15000,x=>{if(!Array.isArray(x.history))throw Error('Historial inválido');return normalizeHistory(x.history)});const [items,setItems]=useState([]),[filter,setFilter]=useState('todos');useEffect(()=>{if(!raw)return;let active=true;(async()=>{const unique=[...new Set(raw.map(ipOf))];const results=new Map();for(let i=0;i<unique.length;i+=5){const chunk=unique.slice(i,i+5);await Promise.all(chunk.map(async ip=>results.set(ip,await geo(ip))))}if(active)setItems(raw.map((o,i)=>({...o,id:i,ip:ipOf(o),bot:botOf(o),geo:results.get(ipOf(o))})).sort(compareListeners) )})();return()=>{active=false}},[raw]);const humans=items.filter(x=>!x.bot),bots=items.length-humans.length,unique=new Set(humans.map(x=>x.ip)).size;const ipCounts=new Map();humans.forEach(x=>ipCounts.set(x.ip,(ipCounts.get(x.ip)||0)+1));const visible=items.filter(x=>filter==='todos'||(filter==='humanos'?!x.bot:x.bot));return <main><header><div><h1>Monitor</h1></div></header><section className="stats"><article><small>Conexiones totales</small><strong>{items.length}</strong></article><article><small>Humanos</small><strong>{humans.length}</strong></article><article className="unique-stat"><small>IP únicas humanas</small><strong>{unique}</strong></article><article><small>Bots</small><strong>{bots}</strong></article></section>{err&&<p className="warning">No se pudo actualizar el listado de oyentes. Se muestran los últimos datos disponibles.</p>}<section className="dashboard"><article className="panel listeners"><div className="heading"><h2>Oyentes activos</h2><select aria-label="Filtrar conexiones" value={filter} onChange={e=>setFilter(e.target.value)}><option value="todos">Todos</option><option value="humanos">Humanos</option><option value="bots">Bots</option></select></div><div className="scroll">{!raw?<p>Cargando oyentes…</p>:!visible.length?<p>No hay conexiones en esta categoría.</p>:visible.map(x=><div className={'listener '+(x.bot?'bot':'human')} key={x.id}><div className="line"><b className={x.bot?'red':'green'}>{x.bot?'Bot':'Humano'}</b><strong className="ip">{x.ip}</strong><span className="location">— {x.geo?<><span className={x.bot?undefined:"city"}>{x.geo.city}</span>, {x.geo.country}</>:'Ubicación no disponible'}</span>{!x.bot&&ipCounts.get(x.ip)>1&&<span className="duplicate-count">({ipCounts.get(x.ip)} conexiones)</span>}</div><div className="muted detail"><span title="Reproductor" aria-label="Reproductor" className="detail-icon">🎧</span> {x.useragent||'-'}</div><div className="muted detail"><span title="Duración" aria-label="Duración" className="detail-icon">◷</span> {duration(x.time)} <span className="ref-label">· {x.referer||'-'}</span></div></div>)}</div></article><article className="panel map-panel"><h2>Mapa de oyentes humanos</h2><MapPanel listeners={humans}/></article><section className="panel history"><h2>Últimas canciones</h2>{tracksError&&<p className="warning">No se pudo actualizar el historial; se conservan los últimos datos.</p>}{!tracks?<p>Cargando historial…</p>:tracks.length===0?<p>Sin canciones disponibles.</p>:<ol>{tracks.map((t,i)=><li className={/De las Sierras\s*-\s*Sweeper/i.test(t)?'sweeper':i===0?'latest':''} key={i}>{/^\d{1,2}\.?\)/.test(t)?t.replace(/^(\d{1,2})\.\)/,'$1)'):`${i+1}) ${t}`}</li>)}</ol>}</section></section><footer>De las Sierras - Playing Good Music · Monitor de radio</footer></main>}
+createRoot(document.getElementById('root')).render(<App/>);

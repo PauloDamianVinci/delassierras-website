@@ -1,59 +1,43 @@
-# De las Sierras — Playing Good Music (v2.6.8)
+# De las Sierras — Radio Monitor v1.0 — Etapa 2.1
+Dashboard React/Vite en español para Cloudflare Pages.
 
-Sitio React + Vite para Cloudflare Pages, bilingüe EN/ES.
+## Despliegue sin instalación local
+1. Crear repositorio GitHub y subir los archivos de este ZIP (incluida carpeta `.github`).
+2. En Actions ejecutar «Compilar monitor»; descargar artifact `radio-monitor-dist`.
+3. Subir el contenido compilado a Cloudflare Pages (Direct Upload), o conectar el repositorio con comando `npm run build` y directorio `dist`.
 
-## Funciones
-- Reproductor ArgentinaStream embebido: audio, metadatos y reconexión administrados por el proveedor.
-- Historial SonicPanel actualizado cada 15 segundos; primera pista turquesa, sweepers grises, restantes blancas.
-- Directorios: TuneIn, Online Radio Box, radio.net, Live Online Radio.
-- Reproductores externos: Winamp, VLC, Windows Media y Apple Music (enlaces PLS/ASX).
-- Descarga de aplicación Android desde Cloudflare Pages (`public/downloads/DeLasSierrasRadio.apk`).
-- Playlist de Spotify.
-- Ko-fi con imagen QR original provista, alojada en `public/kofi-qr.png`.
+## Fuentes
+- Oyentes: Google Apps Script existente, cada 20 s.
+- Geolocalización: Google Apps Script existente, caché navegador de 24 h.
+- Historial: SonicPanel, cada 15 s.
+- Mapa: Leaflet/OpenStreetMap.
 
-## Despliegue
-Subir el contenido del ZIP a la raíz del repositorio GitHub, conservando carpetas `src/` y `public/`. En Cloudflare Pages usar `npm run build` y directorio `dist`. No cambiar todavía el dominio de Google Sites.
+## Advertencias
+El monitor es público y expone IP completas. Los endpoints originales también son públicos. Verificar CORS y cuotas en el navegador tras publicar. La clasificación humano/bot es heurística y puede dar falsos positivos. El acceso al mapa usa los servidores comunitarios de teselas de OpenStreetMap y debe respetar su política de uso.
 
-## Pruebas
-Verificar el iframe, el historial y el selector de idiomas, además de los enlaces externos, la descarga APK y el QR de Ko-fi. Los enlaces de reproductores PLS/ASX requieren aplicaciones compatibles instaladas.
+## Etapa 2.1: optimización de geolocalización
+- Conserva los mismos servicios y la misma presentación de v1.0.
+- Reutiliza una única solicitud pendiente por IP entre ciclos de refresco.
+- Cancela consultas geográficas que superen 8 segundos.
+- Caché de éxitos: 24 horas; fallos: 60 segundos; límite: 500 IP en memoria.
+- Mantiene los lotes de hasta 5 IP por ciclo.
+- La caché es temporal del navegador, no persiste tras cerrar la pestaña.
 
+### Prueba de aceptación
+Comparar con la v1.0: mismo número de conexiones y ubicaciones, mismo mapa e historial.
+Abrir herramientas del navegador > Network y verificar que la misma IP no provoca solicitudes geográficas simultáneas.
 
-## Version 2.3
-- Simplified hero: removed the three centered promotional texts.
-- Enlarged the brand in the upper left and added bilingual station descriptors.
-- Renamed the navigation item to Ways to listen / Formas de escuchar.
-- Removed the Listen wherever you are heading, description and direct stream link.
-- Retained external player links and direct Android APK download under Ways to listen.
-
-## Version 2.4
-- Navigation and section names: Listen Anywhere / Escucha desde cualquier lugar, The Station / La radio.
-- History heading: Recently Played / Últimas canciones.
-- Updated station description in both languages.
-- Neutral Spanish copy throughout the website.
-- Audio player, history polling, links, styles and images unchanged.
-
-## Version 2.5
-
-- Replaced the provider-identifying iframe title with a neutral accessible title. Third-party iframe tooltips remain outside the site's control.
-- Localized external player, radio directory and Spotify link tooltips for English and Spanish, including accessible labels.
-- Combined the footer into one copyright line.
-- Kept the audio iframe, SonicPanel polling, styling and other functionality unchanged.
+## Etapa 2.2
+- Ajuste del mapa cuando cambia el conjunto de ubicaciones humanas (sin reajustar cada refresco).
+- Indicador de conexiones repetidas por IP.
+- Orden de contadores: Total, Humanos, IP únicas humanas, Bots.
 
 
-## v2.6.2 — Social links
+## Etapa 2.3
+Diseño compacto, mapa oscuro por defecto mediante filtro CSS de teselas OSM, historial a la derecha en escritorio, contadores compactos, ubicación junto a IP e iconos para reproductor y duración.
 
-Added Facebook, Instagram and email contact icons to the existing footer, with responsive styling and accessible labels. No changes to streaming or track metadata.
+## Etapa 2.3.6
+- Oyentes humanos ordenados por ciudad (A–Z) y luego por IP en orden natural numérico. Las ciudades desconocidas quedan al final de los humanos. Los bots conservan su orden original.
 
-## v2.6.4 — APK alojada en Cloudflare Pages
-
-- La APK firmada v1.9.0 está en `public/downloads/DeLasSierrasRadio.apk`. Vite la copiará a `dist/downloads/DeLasSierrasRadio.apk` durante el build.
-- El botón de descarga usa `/downloads/DeLasSierrasRadio.apk` y no expone el usuario de GitHub.
-- Para futuras versiones, reemplazar ese archivo APK y volver a desplegar.
-- No publicar el ZIP del proyecto como sitio estático sin ejecutar `npm run build`.
-
-
-## v2.6.8 — Distribución responsive
-
-- Desde 960 px de ancho de ventana, reproductor a la izquierda e historial a la derecha, alineados arriba.
-- Por debajo de 960 px, se conserva la distribución vertical original.
-- Sin cambios en el reproductor, la consulta de historial ni los demás componentes.
+## Etapa 2.3.7
+- Resaltado de ciudad exclusivo de humanos; el mapa recibe solo humanos y mantiene su filtro interno de bots.
